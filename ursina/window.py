@@ -283,7 +283,6 @@ class Window(WindowProperties):
         if application.window_type == 'none' or not value:
             return
 
-        print('---------------set size to:', value)
         if hasattr(self, '_forced_aspect_ratio') and self.forced_aspect_ratio:
             value = (value[1] * self.forced_aspect_ratio, value[1])
 
