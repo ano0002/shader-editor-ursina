@@ -139,6 +139,34 @@ def open_project():
                     geometryCode.delete(1.0, tk.END)
                     geometryCode.insert(tk.END, f.read())
             
+def save_project():
+    directory = tk.filedialog.askdirectory(initialdir = "./",title = "Select directory")
+    if directory:
+        with open(directory+"/vertex.vert", 'w') as f:
+            f.write(vertexCode.get(1.0, tk.END).strip())
+        with open(directory+"/fragment.frag", 'w') as f:
+            f.write(fragmentCode.get(1.0, tk.END).strip())
+        with open(directory+"/geometry.geom", 'w') as f:
+            f.write(geometryCode.get(1.0, tk.END).strip())
+
+def save_vertex():
+    file = tk.filedialog.asksaveasfile(mode='w', defaultextension=".vert",filetypes = (("vertex shaders files","*.vert"),("shader files","*.glsl"),("all files","*.*")))
+    if file:
+        file.write(vertexCode.get(1.0, tk.END).strip())
+        file.close()
+
+def save_fragment():
+    file = tk.filedialog.asksaveasfile(mode='w', defaultextension=".frag",filetypes = (("fragment shaders files","*.frag"),("shader files","*.glsl"),("all files","*.*")))
+    if file:
+        file.write(fragmentCode.get(1.0, tk.END).strip())
+        file.close()
+
+def save_geometry():
+    file = tk.filedialog.asksaveasfile(mode='w', defaultextension=".geom",filetypes = (("geometry shaders files","*.geom"),("shader files","*.glsl"),("all files","*.*")))
+    if file:
+        file.write(geometryCode.get(1.0, tk.END).strip())
+        file.close()
+
 
 menubar = tk.Menu(tkWindow,relief=tk.FLAT,borderwidth=0)
 
@@ -152,8 +180,13 @@ openmenu.add_command(label="Fragment Shader", command=open_fragment)
 openmenu.add_command(label="Geometry Shader", command=open_geometry)
 filemenu.add_cascade(label="Open", menu=openmenu)
 
+savemenu = tk.Menu(filemenu, tearoff=0)
+savemenu.add_command(label="Shader Project", command=save_project)
+savemenu.add_command(label="Vertex Shader", command=save_vertex)
+savemenu.add_command(label="Fragment Shader", command=save_fragment)
+savemenu.add_command(label="Geometry Shader", command=save_geometry)
+filemenu.add_cascade(label="Save", menu=savemenu)
 
-filemenu.add_command(label="Save")
 filemenu.add_separator()
 resetmenu = tk.Menu(filemenu, tearoff=0)
 resetmenu.add_command(label="Vertex Shader", command=resetVertex)
@@ -161,14 +194,11 @@ resetmenu.add_command(label="Fragment Shader", command=resetFragment)
 resetmenu.add_command(label="Geometry Shader", command=resetGeometry)
 resetmenu.add_command(label="All", command=new_project)
 filemenu.add_cascade(label="Reset",menu=resetmenu)
+
 filemenu.add_separator()
 filemenu.add_command(label="Exit", command=tkWindow.quit)
 menubar.add_cascade(label="File", menu=filemenu)
 
-helpmenu = tk.Menu(menubar, tearoff=0)
-helpmenu.add_command(label="Help Index")
-helpmenu.add_command(label="About...")
-menubar.add_cascade(label="Help", menu=helpmenu)
 
 tkWindow.config(menu=menubar)
 
