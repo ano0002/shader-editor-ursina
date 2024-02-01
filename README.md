@@ -27,4 +27,17 @@ To test if everything is working for you just open the app and click `File>Open>
 
 Any feedback is appreciated.
 
+### Dependencies
+
+- [customtkinter](https://customtkinter.tomschimansky.com)
+- [Tkinter](https://docs.python.org/3/library/tkinter.html)
+- [ursina-with-tkinter](https://github.com/ano0002/ursina_with_tkinter)
+  - [ursina](https://www.ursinaengine.org/)
+    - [panda3d](https://www.panda3d.org/)
+  - [Pmw](https://pypi.org/project/Pmw/)
+- [chlorophyll](https://github.com/rdbende/chlorophyll)
+  - [tklinenums](https://pypi.org/project/tklinenums/)
+  - [pygments](https://pygments.org/)
+  - [pyperclip](https://pypi.org/project/pyperclip/)
+  - [toml](https://pypi.org/project/toml/)
 
