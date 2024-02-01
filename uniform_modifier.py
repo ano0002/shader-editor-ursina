@@ -2,9 +2,9 @@ import tkinter as tk
 import customtkinter
 from ursina import Texture,Vec2,Vec3,Vec4
 
-class Uniform(tk.Frame):
+class Uniform(customtkinter.CTkFrame):
     def __init__(self, master,name,type, camera, default_value=None, params=None):
-        super().__init__(master,bg="#212121")
+        super().__init__(master)
         self.master = master
         self.name = name
         self.type = type
@@ -31,13 +31,14 @@ class Uniform(tk.Frame):
         pass
 
     def update_shader(self,event=None):
+        print(f"Updating {self.name} to {self.get()}")
         self._cam.set_shader_input(self.name, self.get())
 
 class UniformInt(Uniform):
     def create_entry(self):
         self.uniform_entry = customtkinter.CTkSlider(self, from_=0, to=100, command=self.update_shader)
         if self._params:
-            self.uniform_entry.config(from_=self._params[0], to=self._params[1])
+            self.uniform_entry.configure(from_=self._params[0], to=self._params[1])
         if self._default_value:
             self._default_value = int(self._default_value)
             self.uniform_entry.set(self._default_value)
@@ -83,7 +84,6 @@ class UniformImage(Uniform):
     def image_picker(self):
         new_image = tk.filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("images files","*.jpg *.png *.jpeg"),("all files","*.*")))
         if new_image:
-            print(new_image)
             self._image = Texture(new_image)
             self.update_shader()
     
@@ -102,7 +102,6 @@ class UniformColor(Uniform):
     def color_picker(self):
         new_color = tk.colorchooser.askcolor()
         if new_color:
-            print(new_color)
             self._color = new_color
             self.update_shader()
     def get(self):

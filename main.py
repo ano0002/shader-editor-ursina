@@ -88,12 +88,18 @@ def extract_uniforms(code):
         if "uniform" in line:
             line,params = line[7:].split(";")
             if len(params) > 5:
-                params = params[2:]
-                params = params.strip("(").strip(")").split(",")
-                print(list(map(float,params)))
+                try :
+                    params = params[2:].strip("(").strip(")").split(",")
+                    params = list(map(float,params))
+                    params = [int(x) if x.is_integer() else x for x in params]
+                    params = tuple(params)
+                except:
+                    params = None
+            else:
+                params = None
             elements = line.replace("="," ").split(" ")
             elements = [x for x in elements if x != ""]
-            uniforms.append(elements)
+            uniforms.append([elements,params])
     return uniforms
 
 def get_uniforms():
@@ -102,11 +108,13 @@ def get_uniforms():
     uniforms = extract_uniforms(vertexCode.get(1.0, tk.END).strip())
     uniforms.extend(extract_uniforms(fragmentCode.get(1.0, tk.END).strip()))
     uniforms.extend(extract_uniforms(geometryCode.get(1.0, tk.END).strip()))
-    for uniform in uniforms:
+    for (uniform,params) in uniforms:
         if uniform[1] not in uniform_names:
             kwargs = {"master":uniform_list,"name":uniform[1],"type":uniform[0],"camera":camera}
-            if len(uniform) > 2:
+            if len(uniform) > 2 :
                 kwargs["default_value"] = uniform[2]
+            if params != None:
+                kwargs["params"] = params
             if uniform[0] in uniform_associations:
                 uniform_setter = uniform_associations[uniform[0]](**kwargs)
             else:
