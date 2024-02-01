@@ -60,7 +60,7 @@ class CodeView(Text):
         super().grid(row=0, column=1, sticky="nswe")
 
         self._line_numbers = TkLineNumbers(
-            self._frame, self, justify=kwargs.get("justify", "left"), colors=linenums_theme
+            self._frame, self, justify=kwargs.get("justify", "left"), colors=linenums_theme, borderwidth=1, relief="solid"
         )
         self._vs = Scrollbar(self._frame, autohide=autohide_scrollbar, orient="vertical", command=self.yview)
         self._hs = Scrollbar(self._frame, autohide=autohide_scrollbar, orient="horizontal", command=self.xview)
