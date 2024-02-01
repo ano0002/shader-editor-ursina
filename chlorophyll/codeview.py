@@ -81,6 +81,7 @@ class CodeView(Text):
         super().bind(f"<{contmand}-v>", self._paste, add=True)
         super().bind(f"<{contmand}-a>", self._select_all, add=True)
         super().bind(f"<{contmand}-Shift-Z>", self.redo, add=True)
+        super().bind(f"<{contmand}-Z>", self.undo, add=True)
         super().bind("<<ContentChanged>>", self.scroll_line_update, add=True)
         super().bind("<Button-1>", self._line_numbers.redraw, add=True)
 
@@ -101,6 +102,12 @@ class CodeView(Text):
             self.edit_redo()
         except TclError:
             pass
+
+    def undo(self, event: Event | None = None) -> None:
+        try:
+            self.edit_undo()
+        except TclError:
+            print("Nothing to undo")
 
     def _paste(self, *_):
         insert = self.index(f"@0,0 + {self.cget('height') // 2} lines")

@@ -14,7 +14,8 @@ class Window(WindowProperties):
 
     def ready(self, title, icon, borderless, fullscreen, size, forced_aspect_ratio, position, vsync, editor_ui_enabled, window_type, render_mode):
         self.window_type = window_type
-        loadPrcFileData('', 'notify-level-util error')
+        loadPrcFileData('', 'notify-level error')
+        loadPrcFileData('', 'default-directnotify-level error')
         loadPrcFileData('', 'textures-auto-power-2 #t')
         loadPrcFileData('', 'load-file-type p3assimp')
         
@@ -72,11 +73,8 @@ class Window(WindowProperties):
         
 
     def late_ready(self,id,offset):
-        print("late ready")
         self.setParentWindow(id)
         self.setOrigin(offset[0],offset[1])
-        print('set parent window:', id, offset)
-        print(int(self.windowed_size[0]),int(self.windowed_size[1]))
         self.size = Vec2(int(self.windowed_size[0]),int(self.windowed_size[1]))
 
     def apply_settings(self):
@@ -265,7 +263,6 @@ class Window(WindowProperties):
     def position(self, value):
         if application.window_type == 'none':
             return
-        print('set window position:', value)
         self.setOrigin(int(value[0]), int(value[1]))
         if application.base and hasattr(application.base.win, 'request_properties'):
             application.base.win.request_properties(self)
@@ -413,9 +410,7 @@ class Window(WindowProperties):
         self._fullscreen = value
         if application.window_type == 'none': return
 
-        print('set fullscreen to', value)
         if value:
-            print(self.main_monitor)
             self.windowed_position = self.position
             self.windowed_size = self.size
             self.position = Vec2(self.main_monitor.x, self.main_monitor.y)

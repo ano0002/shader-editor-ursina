@@ -333,14 +333,15 @@ class Ursina(ShowBase):
         if application.show_ursina_splash:
             from ursina.prefabs.splash_screen import SplashScreen
             application.ursina_splash = SplashScreen()
-
+            print('showing splash screen...')
         application.load_settings()
         if info:
             print('os:', platform.system())
             print('development mode:', application.development_mode)
             print('application successfully started')
-
+        
         super().run()
+        
 
 
 if __name__ == '__main__':

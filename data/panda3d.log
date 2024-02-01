@@ -1,0 +1,2 @@
+:display:gsg:glgsg(error): An error occurred while compiling GLSL vertex shader created-shader:
+(0) : error C0000: syntax error, unexpected $end, expecting "::" at token "<EOF>"

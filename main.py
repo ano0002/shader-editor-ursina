@@ -7,6 +7,8 @@ from ursina.shader import default_fragment_shader, default_vertex_shader
 import os
 import builtins
 
+from panda3d.core import MultiplexStream, Notify, Filename
+
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("dark-blue") 
 
@@ -32,6 +34,8 @@ vertexCode.pack(fill=tk.BOTH, expand=True)
 fragmentCode.pack(fill=tk.BOTH, expand=True)
 geometryCode.pack(fill=tk.BOTH, expand=True)
 
+vertexCode.focus_force()
+
 def resetVertex():
     vertexCode.delete(1.0, tk.END)
     vertexCode.insert(tk.END, default_vertex_shader)
@@ -43,6 +47,14 @@ def resetFragment():
 def resetGeometry():
     geometryCode.delete(1.0, tk.END)
 
+def clearConsole():
+    global console_content
+    console_content = ""
+    console.configure(state=tk.NORMAL)
+    console.delete(1.0, tk.END)
+    console.configure(state=tk.DISABLED)
+    with open("./data/panda3d.log", "w") as f:
+        f.write("")
 
 custom_shader = Shader()
 
@@ -72,16 +84,29 @@ def stop():
 
 compile_and_run = customtkinter.CTkButton(tkWindow,text="►",command=compile_run,text_color="green",fg_color="#22272b",border_width=2,border_color="#22272b",hover_color="#343d46",corner_radius=0,border_spacing=0,width=40,font=("Arial", 20),height=40)
 
-console = tk.Text(tkWindow,fg="#c5c8c6",bg="#1d1f21",borderwidth=0,highlightthickness=0,insertbackground="#c5c8c6",font=("Arial", 12))
+console = tk.Text(tkWindow,fg="#c5c8c6",bg="#1d1f21",borderwidth=0,highlightthickness=0,insertbackground="#c5c8c6",font=("Arial", 12),state=tk.DISABLED)
 
 def console_print(*args, **kwargs):
+    console.configure(state=tk.NORMAL)
     console.insert(tk.END, "\n")
     console.insert(tk.END, *args, **kwargs)
     console.see(tk.END)
+    console.configure(state=tk.DISABLED)
+
+def update_console():
+    global console_content
+    with open("./data/panda3d.log", "r") as f:
+        new_content = f.read()
+    if new_content != console_content:
+        console_print(new_content[len(console_content):])
+        console_content = new_content
+    tkWindow.after(100, update_console)
 
 builtins.print = console_print
 
 def configure(event):
+    if event.widget != tkWindow:
+        return
     height = round(tkWindow.winfo_height()/3*2+.5)
     width = round(tkWindow.winfo_width()/3+.5)
     window.size = (width*2, height)
@@ -90,7 +115,7 @@ def configure(event):
     tabview.configure(width=width, height=height)
     tabview.place(x=width*2, y=0, anchor="nw")
     compile_and_run.place(x=tkWindow.winfo_width()-compile_and_run.winfo_reqwidth(),y=0,anchor="nw")
-    console.place(x=0,y=height,anchor="nw",width=width*3)
+    console.place(x=10,y=height+10,anchor="nw",width=width*3-20,height=height/2-20)
 
 tkWindow.bind("<Configure>", configure)
 
@@ -106,6 +131,8 @@ def open_vertex():
         with open(file, 'r') as f:
             vertexCode.delete(1.0, tk.END)
             vertexCode.insert(tk.END, f.read())
+        tabview.set("Vertex")
+        vertexCode.focus_force()
 
 def open_fragment():
     file = tk.filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("fragment shaders files","*.frag"),("shader files","*.glsl"),("all files","*.*")))
@@ -113,14 +140,18 @@ def open_fragment():
         with open(file, 'r') as f:
             fragmentCode.delete(1.0, tk.END)
             fragmentCode.insert(tk.END, f.read())
-
+        tabview.set("Fragment")
+        fragmentCode.focus_force()
+        
 def open_geometry():
     file = tk.filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("geometry shaders files","*.geom"),("shader files","*.glsl"),("all files","*.*")))
     if file:
         with open(file, 'r') as f:
             geometryCode.delete(1.0, tk.END)
             geometryCode.insert(tk.END, f.read())
-
+        tabview.set("Geometry")
+        geometryCode.focus_force()
+        
 def open_project():
     directory = tk.filedialog.askdirectory(initialdir = "./",title = "Select directory")
     if directory:
@@ -199,14 +230,23 @@ filemenu.add_separator()
 filemenu.add_command(label="Exit", command=tkWindow.quit)
 menubar.add_cascade(label="File", menu=filemenu)
 
-
 tkWindow.config(menu=menubar)
-
 
 Entity(model='cube', color=color.orange, scale=(2,2,2))
 
 EditorCamera()
 
 new_project()
+
+
+#Redirect Panda3D output to console
+nout = MultiplexStream()
+Notify.ptr().setOstreamPtr(nout, 0)
+nout.addFile(Filename('./data/panda3d.log'))
+nout.addStandardOutput()
+nout.addSystemDebug()
+
+clearConsole()
+update_console()
 
 app.run()
