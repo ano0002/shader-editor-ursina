@@ -6,8 +6,50 @@ import tkinter as tk
 from ursina.shader import default_fragment_shader, default_vertex_shader
 import os
 import builtins
-
+from uniform_modifier import *
 from panda3d.core import MultiplexStream, Notify, Filename
+
+uniform_names = [
+    "p3d_ModelViewProjectionMatrix",
+    "p3d_ModelViewMatrix",
+    "p3d_ProjectionMatrix",
+    "p3d_ModelMatrix",
+    "p3d_ViewMatrix",
+    "p3d_ViewProjectionMatrix",
+    "p3d_NormalMatrix",
+    "p3d_ProjectionMatrixInverse",
+    "p3d_ProjectionMatrixTranspose",
+    "p3d_ModelViewMatrixInverseTranspose",
+    "p3d_Texture0",
+    "p3d_Texture1",
+    "p3d_Texture2",
+    "p3d_Texture3",
+    "p3d_TextureModulate",
+    "p3d_TextureAdd",
+    "p3d_TextureNormal",
+    "p3d_TextureHeight",
+    "p3d_TextureGloss",
+    "p3d_TextureMatrix",
+    "p3d_ColorScale",
+    "p3d_Material",
+    "p3d_LightModel",
+    "p3d_ClipPlane",
+    "osg_FrameTime",
+    "osg_DeltaFrameTime",
+    "osg_FrameNumber",
+    "p3d_TransformTable",
+    "p3d_LightSource",
+    "p3d_Fog",
+    "tex",
+    "dtex"
+]
+
+uniform_associations = {
+    "float":UniformFloat,
+    "int":UniformInt,
+    "bool":UniformBool,
+    "sampler2D":UniformImage
+}
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("dark-blue") 
@@ -20,9 +62,10 @@ tkWindow.configure(background='#212121')
 
 tabview = customtkinter.CTkTabview(master=tkWindow,border_width=0,corner_radius=0)
 
-tabview.add("Vertex")  # add tab at the end
-tabview.add("Fragment")  # add tab at the end
-tabview.add("Geometry")  # add tab at the end
+tabview.add("Vertex") 
+tabview.add("Fragment") 
+tabview.add("Geometry") 
+tabview.add("Uniforms") 
 
 tabview.set("Vertex")
 
@@ -35,6 +78,47 @@ fragmentCode.pack(fill=tk.BOTH, expand=True)
 geometryCode.pack(fill=tk.BOTH, expand=True)
 
 vertexCode.focus_force()
+
+uniform_list = tk.Frame(tabview.tab("Uniforms"),bg="#212121")
+uniform_list.pack(fill=tk.BOTH, expand=True, side=tk.TOP, padx=20, pady=20)
+
+def extract_uniforms(code):
+    uniforms = []
+    for line in code.split("\n"):
+        if "uniform" in line:
+            line,params = line[7:].split(";")
+            if len(params) > 5:
+                params = params[2:]
+                params = params.strip("(").strip(")").split(",")
+                print(list(map(float,params)))
+            elements = line.replace("="," ").split(" ")
+            elements = [x for x in elements if x != ""]
+            uniforms.append(elements)
+    return uniforms
+
+def get_uniforms():
+    for child in uniform_list.winfo_children():
+        child.destroy()
+    uniforms = extract_uniforms(vertexCode.get(1.0, tk.END).strip())
+    uniforms.extend(extract_uniforms(fragmentCode.get(1.0, tk.END).strip()))
+    uniforms.extend(extract_uniforms(geometryCode.get(1.0, tk.END).strip()))
+    for uniform in uniforms:
+        if uniform[1] not in uniform_names:
+            kwargs = {"master":uniform_list,"name":uniform[1],"type":uniform[0],"camera":camera}
+            if len(uniform) > 2:
+                kwargs["default_value"] = uniform[2]
+            if uniform[0] in uniform_associations:
+                uniform_setter = uniform_associations[uniform[0]](**kwargs)
+            else:
+                uniform_setter = Uniform(**kwargs)
+            uniform_setter.pack(fill=tk.X, expand=True, side=tk.TOP)
+
+extractor_button = customtkinter.CTkButton(tabview.tab("Uniforms"),text="Extract",command=get_uniforms,text_color="green",fg_color="#22272b",border_width=2,border_color="#22272b",hover_color="#343d46",corner_radius=0,border_spacing=0,width=40,font=("Arial", 20),height=40)
+extractor_button.pack(fill=tk.X, expand=True, side=tk.BOTTOM)
+
+        
+
+
 
 def resetVertex():
     vertexCode.delete(1.0, tk.END)
@@ -124,6 +208,7 @@ def new_project():
     resetVertex()
     resetFragment()
     resetGeometry()
+    get_uniforms()
 
 def open_vertex():
     file = tk.filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("vertex shaders files","*.vert"),("shader files","*.glsl"),("all files","*.*")))
@@ -133,6 +218,7 @@ def open_vertex():
             vertexCode.insert(tk.END, f.read())
         tabview.set("Vertex")
         vertexCode.focus_force()
+    get_uniforms()
 
 def open_fragment():
     file = tk.filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("fragment shaders files","*.frag"),("shader files","*.glsl"),("all files","*.*")))
@@ -142,6 +228,7 @@ def open_fragment():
             fragmentCode.insert(tk.END, f.read())
         tabview.set("Fragment")
         fragmentCode.focus_force()
+    get_uniforms()
         
 def open_geometry():
     file = tk.filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("geometry shaders files","*.geom"),("shader files","*.glsl"),("all files","*.*")))
@@ -151,6 +238,7 @@ def open_geometry():
             geometryCode.insert(tk.END, f.read())
         tabview.set("Geometry")
         geometryCode.focus_force()
+    get_uniforms()
         
 def open_project():
     directory = tk.filedialog.askdirectory(initialdir = "./",title = "Select directory")
@@ -169,6 +257,7 @@ def open_project():
                 with open(directory+"/"+file, 'r') as f:
                     geometryCode.delete(1.0, tk.END)
                     geometryCode.insert(tk.END, f.read())
+    get_uniforms()
             
 def save_project():
     directory = tk.filedialog.askdirectory(initialdir = "./",title = "Select directory")
@@ -197,7 +286,6 @@ def save_geometry():
     if file:
         file.write(geometryCode.get(1.0, tk.END).strip())
         file.close()
-
 
 menubar = tk.Menu(tkWindow,relief=tk.FLAT,borderwidth=0)
 
