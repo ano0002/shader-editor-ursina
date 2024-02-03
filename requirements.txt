@@ -1,5 +1,0 @@
-pygments
-filetype
-pillow
-toml
-customtkinter
