@@ -41,3 +41,6 @@ Any feedback is appreciated.
   - [pyperclip](https://pypi.org/project/pyperclip/)
   - [toml](https://pypi.org/project/toml/)
 
+
+## Suport me ;)
+<a href="https://www.buymeacoffee.com/anatolesot" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
