@@ -16,7 +16,7 @@ This is a shader editor for the [Ursina Engine](https://www.ursinaengine.org/). 
 
 Simply start the editor with `python main.py` and start coding away.
 To run the shader you have to click the play button in the top-right of the editor.
-To see the uniforms you added in your glsl code, go in the `Uniforms` tab in the editor and click on `Extract`.
+To see the uniforms you added in your glsl code, go in the `Uniforms` tab in the editor (click on `Extract` if you feel like some uniforms that should appear here aren't appearing).
 
 > :warning: **To save use the menu in the top-left (ctrl-s hasn't been implemented yet)**: Be very careful here!
 
@@ -35,11 +35,11 @@ Any feedback is appreciated.
   - [ursina](https://www.ursinaengine.org/)
     - [panda3d](https://www.panda3d.org/)
   - [Pmw](https://pypi.org/project/Pmw/)
-- [chlorophyll](https://github.com/rdbende/chlorophyll)
-  - [tklinenums](https://pypi.org/project/tklinenums/)
-  - [pygments](https://pygments.org/)
-  - [pyperclip](https://pypi.org/project/pyperclip/)
+- [cupcake](https://github.com/billyeatcookies/cupcake)
   - [toml](https://pypi.org/project/toml/)
+  - [pillow](https://pypi.org/project/pillow//)
+  - [filetype](https://pypi.org/project/filetype/)
+  - [pygments](https://pygments.org/)
 
 
 ## Suport me ;)

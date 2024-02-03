@@ -1,9 +1,9 @@
 import customtkinter
 from ursina import *  
-import pygments.lexers
-from chlorophyll import CodeView
+from cupcake import Editor, Languages
 import tkinter as tk
 from ursina.shader import default_fragment_shader, default_vertex_shader
+from autocompletion_words import methods, classes, keywords
 import os
 import builtins
 from uniform_modifier import *
@@ -60,7 +60,9 @@ tkWindow = app.getTkWindow()
 tkWindow.state('zoomed')
 tkWindow.configure(background='#212121')
 
-tabview = customtkinter.CTkTabview(master=tkWindow,border_width=0,corner_radius=0)
+tabview = customtkinter.CTkTabview(master=tkWindow,border_width=0,corner_radius=0,anchor="nw",command= lambda : setActiveTab(tabview.get()))
+
+
 
 tabview.add("Vertex") 
 tabview.add("Fragment") 
@@ -69,15 +71,29 @@ tabview.add("Uniforms")
 
 tabview.set("Vertex")
 
-vertexCode = CodeView(tabview.tab("Vertex"), lexer=pygments.lexers.GLShaderLexer, color_scheme="mariana",autohide_scrollbar=True)
-fragmentCode = CodeView(tabview.tab("Fragment"), lexer=pygments.lexers.GLShaderLexer, color_scheme="mariana",autohide_scrollbar=True)
-geometryCode = CodeView(tabview.tab("Geometry"), lexer=pygments.lexers.GLShaderLexer, color_scheme="mariana",autohide_scrollbar=True)
+vertexCode = Editor(tabview.tab("Vertex"), language=Languages.GLSL)
+autocomplete = vertexCode.content.text.auto_completion
+fragmentCode = Editor(tabview.tab("Fragment"), language=Languages.GLSL, autocomplete = autocomplete)
+geometryCode = Editor(tabview.tab("Geometry"), language=Languages.GLSL, autocomplete = autocomplete)
+
+for word in methods:
+    if word not in autocomplete.get_items_text():
+        autocomplete.add_item(word, "method")
+
+for word in classes:
+    if word not in autocomplete.get_items_text():
+        autocomplete.add_item(word, "class")
+
+for word in keywords:
+    if word not in autocomplete.get_items_text():
+        autocomplete.add_item(word, "keyword")
 
 vertexCode.pack(fill=tk.BOTH, expand=True)
 fragmentCode.pack(fill=tk.BOTH, expand=True)
 geometryCode.pack(fill=tk.BOTH, expand=True)
 
 vertexCode.focus_force()
+
 
 uniform_list = tk.Frame(tabview.tab("Uniforms"),bg="#212121")
 uniform_list.pack(fill=tk.BOTH, expand=True, side=tk.TOP, padx=20, pady=20)
@@ -105,9 +121,9 @@ def extract_uniforms(code):
 def get_uniforms():
     for child in uniform_list.winfo_children():
         child.destroy()
-    uniforms = extract_uniforms(vertexCode.get(1.0, tk.END).strip())
-    uniforms.extend(extract_uniforms(fragmentCode.get(1.0, tk.END).strip()))
-    uniforms.extend(extract_uniforms(geometryCode.get(1.0, tk.END).strip()))
+    uniforms = extract_uniforms(vertexCode.content.get(1.0, tk.END).strip())
+    uniforms.extend(extract_uniforms(fragmentCode.content.get(1.0, tk.END).strip()))
+    uniforms.extend(extract_uniforms(geometryCode.content.get(1.0, tk.END).strip()))
     for (uniform,params) in uniforms:
         if uniform[1] not in uniform_names:
             kwargs = {"master":uniform_list,"name":uniform[1],"type":uniform[0],"camera":camera}
@@ -125,19 +141,36 @@ extractor_button = customtkinter.CTkButton(tabview.tab("Uniforms"),text="Extract
 extractor_button.pack(fill=tk.X, expand=True, side=tk.BOTTOM)
 
         
-
+def setActiveTab(tab):
+    vertexCode.content.text.active = False
+    fragmentCode.content.text.active = False
+    geometryCode.content.text.active = False
+    if tab == "Vertex":
+        vertexCode.content.text.active = True
+        autocomplete.updateMaster(vertexCode.content.text)
+        vertexCode.focus_force()
+    elif tab == "Fragment":
+        fragmentCode.content.text.active = True
+        autocomplete.updateMaster(fragmentCode.content.text)
+        fragmentCode.focus_force()
+    elif tab == "Geometry":
+        geometryCode.content.text.active = True
+        autocomplete.updateMaster(geometryCode.content.text)
+        geometryCode.focus_force()
+    elif tab == "Uniforms":
+        get_uniforms()
 
 
 def resetVertex():
-    vertexCode.delete(1.0, tk.END)
-    vertexCode.insert(tk.END, default_vertex_shader)
+    vertexCode.content.delete(1.0, tk.END)
+    vertexCode.content.insert(tk.END, default_vertex_shader.strip())
 
 def resetFragment():
-    fragmentCode.delete(1.0, tk.END)
-    fragmentCode.insert(tk.END, default_fragment_shader)
+    fragmentCode.content.delete(1.0, tk.END)
+    fragmentCode.content.insert(tk.END, default_fragment_shader.strip())
     
 def resetGeometry():
-    geometryCode.delete(1.0, tk.END)
+    geometryCode.content.delete(1.0, tk.END)
 
 def clearConsole():
     global console_content
@@ -152,9 +185,9 @@ custom_shader = Shader()
 
 def compile():
     global custom_shader
-    vertex = vertexCode.get(1.0, tk.END).strip()
-    geometry = geometryCode.get(1.0, tk.END).strip()
-    fragment = fragmentCode.get(1.0, tk.END).strip()
+    vertex = vertexCode.content.get(1.0, tk.END).strip()
+    geometry = geometryCode.content.get(1.0, tk.END).strip()
+    fragment = fragmentCode.content.get(1.0, tk.END).strip()
     custom_shader = Shader(vertex=vertex, geometry=geometry, fragment=fragment)
     
 def run():
@@ -222,8 +255,8 @@ def open_vertex():
     file = tk.filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("vertex shaders files","*.vert"),("shader files","*.glsl"),("all files","*.*")))
     if file:
         with open(file, 'r') as f:
-            vertexCode.delete(1.0, tk.END)
-            vertexCode.insert(tk.END, f.read())
+            vertexCode.content.delete(1.0, tk.END)
+            vertexCode.content.insert(tk.END, f.read())
         tabview.set("Vertex")
         vertexCode.focus_force()
     get_uniforms()
@@ -232,8 +265,8 @@ def open_fragment():
     file = tk.filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("fragment shaders files","*.frag"),("shader files","*.glsl"),("all files","*.*")))
     if file:
         with open(file, 'r') as f:
-            fragmentCode.delete(1.0, tk.END)
-            fragmentCode.insert(tk.END, f.read())
+            fragmentCode.content.delete(1.0, tk.END)
+            fragmentCode.content.insert(tk.END, f.read())
         tabview.set("Fragment")
         fragmentCode.focus_force()
     get_uniforms()
@@ -242,8 +275,8 @@ def open_geometry():
     file = tk.filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("geometry shaders files","*.geom"),("shader files","*.glsl"),("all files","*.*")))
     if file:
         with open(file, 'r') as f:
-            geometryCode.delete(1.0, tk.END)
-            geometryCode.insert(tk.END, f.read())
+            geometryCode.content.delete(1.0, tk.END)
+            geometryCode.content.insert(tk.END, f.read())
         tabview.set("Geometry")
         geometryCode.focus_force()
     get_uniforms()
@@ -255,44 +288,44 @@ def open_project():
         for file in files:
             if file.endswith(".vert"):
                 with open(directory+"/"+file, 'r') as f:
-                    vertexCode.delete(1.0, tk.END)
-                    vertexCode.insert(tk.END, f.read())
+                    vertexCode.content.delete(1.0, tk.END)
+                    vertexCode.content.insert(tk.END, f.read())
             elif file.endswith(".frag"):
                 with open(directory+"/"+file, 'r') as f:
-                    fragmentCode.delete(1.0, tk.END)
-                    fragmentCode.insert(tk.END, f.read())
+                    fragmentCode.content.delete(1.0, tk.END)
+                    fragmentCode.content.insert(tk.END, f.read())
             elif file.endswith(".geom"):
                 with open(directory+"/"+file, 'r') as f:
-                    geometryCode.delete(1.0, tk.END)
-                    geometryCode.insert(tk.END, f.read())
+                    geometryCode.content.delete(1.0, tk.END)
+                    geometryCode.content.insert(tk.END, f.read())
     get_uniforms()
             
 def save_project():
     directory = tk.filedialog.askdirectory(initialdir = "./",title = "Select directory")
     if directory:
         with open(directory+"/vertex.vert", 'w') as f:
-            f.write(vertexCode.get(1.0, tk.END).strip())
+            f.write(vertexCode.content.get(1.0, tk.END).strip())
         with open(directory+"/fragment.frag", 'w') as f:
-            f.write(fragmentCode.get(1.0, tk.END).strip())
+            f.write(fragmentCode.content.get(1.0, tk.END).strip())
         with open(directory+"/geometry.geom", 'w') as f:
-            f.write(geometryCode.get(1.0, tk.END).strip())
+            f.write(geometryCode.content.get(1.0, tk.END).strip())
 
 def save_vertex():
     file = tk.filedialog.asksaveasfile(mode='w', defaultextension=".vert",filetypes = (("vertex shaders files","*.vert"),("shader files","*.glsl"),("all files","*.*")))
     if file:
-        file.write(vertexCode.get(1.0, tk.END).strip())
+        file.write(vertexCode.content.get(1.0, tk.END).strip())
         file.close()
 
 def save_fragment():
     file = tk.filedialog.asksaveasfile(mode='w', defaultextension=".frag",filetypes = (("fragment shaders files","*.frag"),("shader files","*.glsl"),("all files","*.*")))
     if file:
-        file.write(fragmentCode.get(1.0, tk.END).strip())
+        file.write(fragmentCode.content.get(1.0, tk.END).strip())
         file.close()
 
 def save_geometry():
     file = tk.filedialog.asksaveasfile(mode='w', defaultextension=".geom",filetypes = (("geometry shaders files","*.geom"),("shader files","*.glsl"),("all files","*.*")))
     if file:
-        file.write(geometryCode.get(1.0, tk.END).strip())
+        file.write(geometryCode.content.get(1.0, tk.END).strip())
         file.close()
 
 menubar = tk.Menu(tkWindow,relief=tk.FLAT,borderwidth=0)
@@ -344,5 +377,6 @@ nout.addSystemDebug()
 
 clearConsole()
 update_console()
+setActiveTab("Vertex")
 
 app.run()

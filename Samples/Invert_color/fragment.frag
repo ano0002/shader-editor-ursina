@@ -2,7 +2,7 @@
 
 uniform sampler2D tex;
 uniform bool invert;
-uniform int power=25;//(0,100)
+uniform int power=100;//(0,100)
 in vec2 uv;
 out vec4 color;
 
