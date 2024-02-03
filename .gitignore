@@ -1,3 +1,22 @@
-*.pyc
-*/__pycache__/*
-*.pyc
+# Ignore Python build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ignore pip log
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Ignore files related to virtual environments
+venv/
+ENV/
+
+# Ignore the local configuration file (if any)
+*.toml
+
+# Ignore log files
+*.log
+
+# Ignore the data directory
+data/

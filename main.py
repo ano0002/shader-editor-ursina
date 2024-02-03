@@ -252,6 +252,7 @@ def new_project():
     get_uniforms()
 
 def open_vertex():
+    stop()
     file = tk.filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("vertex shaders files","*.vert"),("shader files","*.glsl"),("all files","*.*")))
     if file:
         with open(file, 'r') as f:
@@ -262,6 +263,7 @@ def open_vertex():
     get_uniforms()
 
 def open_fragment():
+    stop()
     file = tk.filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("fragment shaders files","*.frag"),("shader files","*.glsl"),("all files","*.*")))
     if file:
         with open(file, 'r') as f:
@@ -272,6 +274,7 @@ def open_fragment():
     get_uniforms()
         
 def open_geometry():
+    stop()
     file = tk.filedialog.askopenfilename(initialdir = "./",title = "Select file",filetypes = (("geometry shaders files","*.geom"),("shader files","*.glsl"),("all files","*.*")))
     if file:
         with open(file, 'r') as f:
@@ -282,6 +285,7 @@ def open_geometry():
     get_uniforms()
         
 def open_project():
+    stop()
     directory = tk.filedialog.askdirectory(initialdir = "./",title = "Select directory")
     if directory:
         files = os.listdir(directory)
@@ -378,5 +382,105 @@ nout.addSystemDebug()
 clearConsole()
 update_console()
 setActiveTab("Vertex")
+
+def save_active_tab(event=None):
+    if tabview.get() == "Vertex":
+        save_vertex()
+    elif tabview.get() == "Fragment":
+        save_fragment()
+    elif tabview.get() == "Geometry":
+        save_geometry()
+
+def open_active_tab(event=None):
+    if tabview.get() == "Vertex":
+        open_vertex()
+    elif tabview.get() == "Fragment":
+        open_fragment()
+    elif tabview.get() == "Geometry":
+        open_geometry()
+
+def copy():
+    if tabview.get() == "Vertex":
+        vertexCode.content.text.event_generate("<<Copy>>")
+    elif tabview.get() == "Fragment":
+        fragmentCode.content.text.event_generate("<<Copy>>")
+    elif tabview.get() == "Geometry":
+        geometryCode.content.text.event_generate("<<Copy>>")
+
+def paste():
+    if tabview.get() == "Vertex":
+        vertexCode.content.text.event_generate("<<Paste>>")
+    elif tabview.get() == "Fragment":
+        fragmentCode.content.text.event_generate("<<Paste>>")
+    elif tabview.get() == "Geometry":
+        geometryCode.content.text.event_generate("<<Paste>>")
+
+def cut():
+    print(f"tk.SEL_FIRST: {tk.SEL_FIRST}")
+    print(f"tk.SEL_LAST: {tk.SEL_LAST}")
+    print(f"tk.SEL: {tk.SEL}")
+    print(f"Selection: {tkWindow.selection_get()}")
+    print
+    if tabview.get() == "Vertex":
+        vertexCode.content.text.event_generate("<<Cut>>")
+    elif tabview.get() == "Fragment":
+        fragmentCode.content.text.event_generate("<<Cut>>")
+    elif tabview.get() == "Geometry":
+        geometryCode.content.text.event_generate("<<Cut>>")
+        
+def undo(event=None):
+    print("Undo")
+    if tabview.get() == "Vertex":
+        vertexCode.content.text.edit_undo()
+    elif tabview.get() == "Fragment":
+        fragmentCode.content.text.edit_undo()
+    elif tabview.get() == "Geometry":
+        geometryCode.content.text.edit_undo()
+        
+def redo(event=None):
+    print("Redo")
+    if tabview.get() == "Vertex":
+        vertexCode.content.text.edit_redo()
+    elif tabview.get() == "Fragment":
+        fragmentCode.content.text.edit_redo()
+    elif tabview.get() == "Geometry":
+        geometryCode.content.text.edit_redo()
+
+binds = {
+    "<Control-s>":save_active_tab,
+    "<Control-o>":open_active_tab,
+    "<Control-z>":undo,
+    "<Control-y>":redo
+}
+
+ursina_binds = {
+    "ctrl-c":copy,
+    "ctrl-v":paste,
+    "ctrl-x":cut
+}
+
+def input(key):
+    if held_keys["control"] :
+        key = "<Control-"+key+">"
+    
+    if key in binds:
+        print(key)
+        binds[key]()
+    elif key in ursina_binds:
+        ursina_binds[key]()
+        
+    
+
+for key,func in binds.items():
+    tkWindow.bind(key, func)
+
+tkWindow.bind("<Control-Key>", lambda event: None)
+def update():
+    if not "<Control-Key>" in tkWindow.bind():
+        tkWindow.bind("<Control-Key>", lambda event: None)
+        
+    for key,func in binds.items():
+        if not key in tkWindow.bind():
+            tkWindow.bind(key, func)
 
 app.run()
