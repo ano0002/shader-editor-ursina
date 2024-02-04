@@ -3,7 +3,7 @@ from ursina import *
 from cupcake import Editor, Languages
 import tkinter as tk
 from ursina.shader import default_fragment_shader, default_vertex_shader
-from autocompletion_words import methods, classes, keywords
+from autocompletion_words import methods,control_keywords,basic_types,modifiers,functions_builtin
 import os
 import builtins
 from uniform_modifier import *
@@ -76,17 +76,38 @@ autocomplete = vertexCode.content.text.auto_completion
 fragmentCode = Editor(tabview.tab("Fragment"), language=Languages.GLSL, autocomplete = autocomplete)
 geometryCode = Editor(tabview.tab("Geometry"), language=Languages.GLSL, autocomplete = autocomplete)
 
+"""
+Here are all the kinds of words that can be autocompleted in the text editor :
+- "method"
+- "variable"
+- "field"
+- "class"
+- "interface"
+- "module"
+- "property"
+- "keyword"
+"""
+
 for word in methods:
     if word not in autocomplete.get_items_text():
         autocomplete.add_item(word, "method")
 
-for word in classes:
+for word in control_keywords:
+    if word not in autocomplete.get_items_text():
+        autocomplete.add_item(word, "keyword")
+
+for word in basic_types:
     if word not in autocomplete.get_items_text():
         autocomplete.add_item(word, "class")
 
-for word in keywords:
+for word in modifiers:
     if word not in autocomplete.get_items_text():
-        autocomplete.add_item(word, "keyword")
+        autocomplete.add_item(word, "property")
+
+for word in functions_builtin:
+    if word not in autocomplete.get_items_text():
+        autocomplete.add_item(word, "method")
+
 
 vertexCode.pack(fill=tk.BOTH, expand=True)
 fragmentCode.pack(fill=tk.BOTH, expand=True)
