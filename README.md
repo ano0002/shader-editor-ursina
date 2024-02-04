@@ -42,6 +42,11 @@ Any feedback is appreciated.
   - [filetype](https://pypi.org/project/filetype/)
   - [pygments](https://pygments.org/)
 
+### Sources
+All the words for autocompletion come from :
+https://github.com/euler0/sublime-glsl/blob/master/GLSL.sublime-syntax
+And
+https://registry.khronos.org/OpenGL-Refpages/
 
 ## Suport me ;)
 <a href="https://www.buymeacoffee.com/anatolesot" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me A Coffee" style="height: 50px !important;width: 200px !important;" ></a>
