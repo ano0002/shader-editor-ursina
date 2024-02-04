@@ -3,7 +3,7 @@ from ursina import *
 from cupcake import Editor, Languages
 import tkinter as tk
 from ursina.shader import default_fragment_shader, default_vertex_shader
-from autocompletion_words import methods,control_keywords,basic_types,modifiers,functions_builtin
+from autocompletion_words import control_keywords,basic_types,modifiers,functions
 import os
 import builtins
 from uniform_modifier import *
@@ -88,10 +88,6 @@ Here are all the kinds of words that can be autocompleted in the text editor :
 - "keyword"
 """
 
-for word in methods:
-    if word not in autocomplete.get_items_text():
-        autocomplete.add_item(word, "method")
-
 for word in control_keywords:
     if word not in autocomplete.get_items_text():
         autocomplete.add_item(word, "keyword")
@@ -104,7 +100,7 @@ for word in modifiers:
     if word not in autocomplete.get_items_text():
         autocomplete.add_item(word, "property")
 
-for word in functions_builtin:
+for word in functions:
     if word not in autocomplete.get_items_text():
         autocomplete.add_item(word, "method")
 
