@@ -18,7 +18,8 @@ Simply start the editor with `python main.py` and start coding away.
 To run the shader you have to click the play button in the top-right of the editor.
 To see the uniforms you added in your glsl code, go in the `Uniforms` tab in the editor (click on `Extract` if you feel like some uniforms that should appear here aren't appearing).
 
-> :warning: **To save use the menu in the top-left (ctrl-s hasn't been implemented yet)**: Be very careful here!
+### Common Issues
+If you click on the ursina window and can't seem to regain focus on the tkinter widgets (the code editor) just switch the file opened with the tabs at the top of the tkinter window it should fix it. 
 
 
 ### Samples
