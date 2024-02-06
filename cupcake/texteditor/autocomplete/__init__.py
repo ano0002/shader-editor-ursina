@@ -164,5 +164,3 @@ class AutoComplete(Toplevel):
     def updateMaster(self, master):
         self.master = master
         self.autocomplete_kinds.master = master
-        for i in self.menu_items:
-            i.updateMaster(master)
