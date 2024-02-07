@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.colorchooser as colorchooser
 import customtkinter
 from ursina import Texture,Vec2,Vec3,Vec4
 
@@ -12,7 +13,7 @@ class Uniform(customtkinter.CTkFrame):
         self._params = params
         self._cam = camera
         self.create_widgets()
-        if hasattr(self,"uniform_entry") and self.get() != None:
+        if self.get() != None:
             self.update_shader()
         
 
@@ -56,17 +57,18 @@ class UniformFloat(Uniform):
         self.uniform_entry.pack(side="right")
         
     def get(self):
-        return float(self.uniform_entry.get())
+        if self.uniform_entry.get():
+            return float(self.uniform_entry.get())
+        return 0
 
 class UniformBool(Uniform):
     def create_entry(self):
         self.uniform_entry = customtkinter.CTkSwitch(self, text="On/Off", command=self.update_shader)
         if self._default_value:
             if self._default_value in ("True","true","1","on","On","ON"):
-                self.uniform_entry.set(True)
+                self.uniform_entry.select()
             else:
-                self.uniform_entry.set(False)
-            self.uniform_entry.set(self._default_value)
+                self.uniform_entry.deselect()
         self.uniform_entry.pack(side="right")
 
     def get(self):
@@ -90,19 +92,74 @@ class UniformImage(Uniform):
     def get(self):
         return self._image
     
-class UniformColor(Uniform):
-    def __init__(self,**kwargs):
-        super().__init__(**kwargs)
-        self._color = None
-        
+class UniformColor3(Uniform):
+         
     def create_entry(self):
+        self._color = None
         self.uniform_entry = customtkinter.CTkButton(self, text="Choose Color", command=self.color_picker)
         self.uniform_entry.pack(side="right")
+        if self._default_value:
+            self._color = self._default_value
+            
+        else:
+            self._color = Vec3(1)
     
     def color_picker(self):
-        new_color = tk.colorchooser.askcolor()
-        if new_color:
-            self._color = new_color
+        new_color = colorchooser.askcolor()
+        if new_color != (None,None):
+            self._color = Vec3(*new_color[0])/255
             self.update_shader()
+    
     def get(self):
         return self._color
+
+class UniformColor4(Uniform):
+    def create_entry(self):
+        self._color = None
+        self.uniform_entry = customtkinter.CTkButton(self, text="Choose Color", command=self.color_picker)
+        self.alpha_entry = customtkinter.CTkSlider(self, from_=0, to=1, command=self.set_alpha)
+        self.alpha_entry.pack(side="right")
+        self.alpha_label = customtkinter.CTkLabel(self, text="Alpha")
+        self.alpha_label.pack(side="right")
+        self.uniform_entry.pack(side="right")
+        if self._default_value:
+            self._color = self._default_value
+            self._alpha = self._default_value[3]
+            self.alpha_entry.set(self._default_value[3])
+            
+        else:
+            self._color = Vec4(1)
+            self._alpha = 1
+            self.alpha_entry.set(1)
+    
+    def color_picker(self):
+        new_color = colorchooser.askcolor()
+        if new_color != (None,None):
+            self._color = Vec4(Vec3(*new_color[0])/255,self._alpha)
+            self.update_shader()
+    
+    def set_alpha(self,alpha):
+        self._alpha = alpha
+        self._color[3] = alpha
+        self.update_shader()
+        
+    def get(self):
+        return self._color
+
+class UniformVec2(Uniform):
+    
+    def create_entry(self):
+        self.entry1 = customtkinter.CTkEntry(self)
+        self.entry2 = customtkinter.CTkEntry(self)
+        if self._default_value:
+            self._default_value = Vec2(self._default_value)
+            self.entry1.set(self._default_value[0])
+            self.entry2.set(self._default_value[1])
+        self.entry1.pack(side="right")
+        self.entry2.pack(side="right")
+        
+        
+    def get(self):
+        if self.entry1.get() and self.entry2.get():
+            return Vec2(float(self.entry1.get()),float(self.entry2.get()))
+        return Vec2(0,0)

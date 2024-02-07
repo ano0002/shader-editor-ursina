@@ -9,7 +9,7 @@ class Tree(Frame):
     instance=0
     def __init__(self, master, path=None, doubleclick=lambda _: None, singleclick=lambda _: None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
-        self.instance += Tree.instance
+        self.instance = Tree.instance
         self.config(bg=self.base.theme.tree["background"])
 
 
