@@ -86,5 +86,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=ano0002/shader-editor-ursina&type=Date)](https://star-history.com/#ano0002/shader-editor-ursina&Date)](https://github.com/ano0002/shader-editor-ursina/stargazers)
+[![Star History Chart](https://api.star-history.com/svg?repos=ano0002/shader-editor-ursina&type=Date)](https://github.com/ano0002/shader-editor-ursina/stargazers)
 
