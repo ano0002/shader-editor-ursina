@@ -51,10 +51,15 @@ class UniformInt(Uniform):
 class UniformFloat(Uniform):
     def create_entry(self):
         self.uniform_entry = customtkinter.CTkEntry(self)
+        self.uniform_entry.bind("<Return>", self.update_shader)
+        self.uniform_entry.bind("<FocusOut>", self.update_shader)
         if self._default_value:
             self._default_value = float(self._default_value)
-            self.uniform_entry.set(self._default_value)
+            self.uniform_entry.insert(tk.END,self._default_value)
+        else:
+            self.uniform_entry.insert(tk.END,"0")
         self.uniform_entry.pack(side="right")
+        self.update_shader()
         
     def get(self):
         if self.uniform_entry.get():
@@ -75,11 +80,8 @@ class UniformBool(Uniform):
         return self.uniform_entry.get()
 
 class UniformImage(Uniform):
-    def __init__(self,**kwargs):
-        super().__init__(**kwargs)
-        self._image = None
-
     def create_entry(self):
+        self._image = None;
         self.uniform_entry = customtkinter.CTkButton(self, text="Choose Image", command=self.image_picker)
         self.uniform_entry.pack(side="right")
     
@@ -93,7 +95,6 @@ class UniformImage(Uniform):
         return self._image
     
 class UniformColor3(Uniform):
-         
     def create_entry(self):
         self._color = None
         self.uniform_entry = customtkinter.CTkButton(self, text="Choose Color", command=self.color_picker)
