@@ -71,7 +71,7 @@ class UniformBool(Uniform):
     def create_entry(self):
         self.uniform_entry = customtkinter.CTkSwitch(self, text="On/Off", command=self.update_shader)
         if self._default_value:
-            if self._default_value in ("True","true","1","on","On","ON"):
+            if self._default_value:
                 self.uniform_entry.select()
             else:
                 self.uniform_entry.deselect()
@@ -124,11 +124,10 @@ class UniformColor4(Uniform):
         self.alpha_label = customtkinter.CTkLabel(self, text="Alpha")
         self.alpha_label.pack(side="right")
         self.uniform_entry.pack(side="right")
-        if self._default_value:
-            self._color = self._default_value
-            self._alpha = self._default_value[3]
-            self.alpha_entry.set(self._default_value[3])
-            
+        if self._default_value or self._default_value == 0:
+            self._color = Vec4(self._default_value)
+            self._alpha = self._color.w
+            self.alpha_entry.set(self._alpha)
         else:
             self._color = Vec4(1)
             self._alpha = 1

@@ -108,10 +108,8 @@ def extract_uniforms(code):
             else:
                 params = []
             elements = line.replace("="," ").split(" ")
-            if "color" in params:
-                params = list(params)
-                params.pop(params.index("color"))
-                params = tuple(params)
+            if "color" == params:
+                params = []
                 if elements[1] == "vec3":
                     elements[1] = "color3"
                 elif elements[1] == "vec4":
@@ -130,9 +128,7 @@ def get_uniforms():
         if uniform[1] not in uniform_names:
             kwargs = {"master":uniform_list,"name":uniform[1],"type":uniform[0],"camera":camera}
             if len(uniform) > 2 :
-                print(uniform[2])
                 uniform[2] = uniform[2].replace("vec2","").replace("vec3","").replace("vec4","").strip("()")
-                print(out=uniform[2])
                 uniform[2] = sanitize(uniform[2])
                 kwargs["default_value"] = uniform[2]
             if params != []:
@@ -252,6 +248,7 @@ def console_print(*args, **kwargs):
     console.configure(state=tk.NORMAL)
     console.insert(tk.END, text+end)
     console.configure(state=tk.DISABLED)
+    console.see(tk.END)
 
 
 def update_console():
