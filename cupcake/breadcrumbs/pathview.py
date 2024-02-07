@@ -9,7 +9,7 @@ class PathView(Toplevel):
         self.tree = DirectoryTree(self, width=width)
         self.tree.pack()
 
-        self.config(pady=1, padx=1, bg=self.base.theme.border)
+        self.config(bg=self.base.theme.border)
         self.overrideredirect(True)
         self.withdraw()
 

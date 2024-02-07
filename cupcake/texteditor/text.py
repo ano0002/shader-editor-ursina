@@ -37,7 +37,7 @@ class Text(Text):
         self.config_tags()
         self.create_proxy()
         self.config_bindings()
-        self.configure(wrap=tk.NONE, relief=tk.FLAT, bg=self.base.theme.background, fg=self.base.theme.foreground, insertbackground=self.base.theme.cursor)
+        self.configure(wrap=tk.WORD,relief=tk.FLAT, bg=self.base.theme.background, fg=self.base.theme.foreground, insertbackground=self.base.theme.cursor)
 
         self.update_words()
 
@@ -294,7 +294,7 @@ class Text(Text):
             threading.Thread(target=self.read_file, args=(file,)).start()
             self.process_queue()
         except Exception as e:
-            self.master.unsupported_file()
+            self.master.master.unsupported_file()
 
     def read_file(self, file):
         while True:
@@ -310,15 +310,15 @@ class Text(Text):
             while True:
                 chunk = self.queue.get_nowait()
                 if chunk is None:
-                    self.master.on_change()
-                    self.master.on_scroll()
+                    self.master.master.on_change()
+                    self.master.master.on_scroll()
                     break
                 self.write(chunk)
                 self.update()
-                self.master.on_scroll()
+                self.master.master.on_scroll()
         except queue.Empty:
             # If the queue is empty, schedule the next check after a short delay
-            self.master.after(100, self.process_queue)
+            self.master.master.after(100, self.process_queue)
     
     def save_file(self, path=None):
         if path:

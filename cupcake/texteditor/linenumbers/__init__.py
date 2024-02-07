@@ -1,5 +1,4 @@
 import tkinter as tk
-
 from .breakpoint import Breakpoint
 from ...utils import Canvas, Menubutton
 
@@ -65,10 +64,12 @@ class LineNumbers(Canvas):
             self.create_text(40, y, anchor=tk.NE, text=linenum, font=self.font, tag=i, fill=self.hfg if y == cur_y else self.fg)
             self.tag_bind(i, "<Button-1>", lambda _, i=i: self.text.select_line(i))
 
+            """
             if current_indent > prev_indent:
                 self.create_text(50, y, anchor=tk.NW, text="+", font=self.font, fill=self.fg, tag=f"f{i}")
                 self.tag_bind(f"f{i}", "<Button-1>", lambda _, i=i: print(f"Fold from {i}"))
-        
+            """
+            
             # Update the previous indentation level
             prev_indent = current_indent
             i = self.text.index(f"{i}+1line")

@@ -1,6 +1,7 @@
 import os
 import tkinter as tk
 
+import time
 from ..utils import Scrollbar
 from ..editor import BaseEditor
 
@@ -17,24 +18,28 @@ class TextEditor(BaseEditor):
         self.minimalist = minimalist
         self.language = language
         
-        self.rowconfigure(0, weight=1)
-        self.columnconfigure(1, weight=1)
-
-        self.text = Text(self, path=self.path, minimalist=minimalist, language=language, autocomplete=autocomplete)
+        self.text_container = tk.Frame(self, bg=self.base.theme.background)
+        self.text_container.pack_propagate(False)
+        self.text = Text(self.text_container, path=self.path, minimalist=minimalist, language=language, autocomplete=autocomplete)
         self.linenumbers = LineNumbers(self, self.text, self.font)
         self.scrollbar = Scrollbar(self, orient=tk.VERTICAL, command=self.text.yview, style=f"EditorScrollbar{TextEditor._instance}")
+        
         
         self.text.config(font=self.font)
         self.text.configure(yscrollcommand=self.scrollbar.set)
         
+        """
         if not self.minimalist:
             self.minimap = Minimap(self, self.text)
             self.minimap.grid(row=0, column=2, sticky=tk.NS)
+        """
         
-        self.linenumbers.grid(row=0, column=0, sticky=tk.NS)
-        self.text.grid(row=0, column=1, sticky=tk.NSEW)
-        self.scrollbar.grid(row=0, column=3, sticky=tk.NS)
-
+        self.linenumbers.pack(side=tk.LEFT, fill=tk.Y)
+        self.text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.text_container.pack(side=tk.LEFT,fill=tk.BOTH, expand=True)
+        self.scrollbar.pack(side=tk.LEFT, fill=tk.Y)
+        self.pack_propagate(False)
+        
         self.text.bind("<<Change>>", self.on_change)
         self.text.bind("<<Scroll>>", self.on_scroll)
 
@@ -42,6 +47,15 @@ class TextEditor(BaseEditor):
             self.text.load_file()
 
         TextEditor._instance += 1
+        
+    def configure(self, **kwargs):
+        if "font" in kwargs:
+            self.font = kwargs.pop("font")
+            self.text.config(font=self.font)
+            self.linenumbers.font = self.font
+            self.linenumbers.redraw()
+        super().configure(**kwargs)
+        
     def on_change(self, *_):
         self.text.refresh()
         self.linenumbers.redraw()
@@ -53,8 +67,8 @@ class TextEditor(BaseEditor):
     def unsupported_file(self):
         self.text.highlighter.lexer = None
         self.text.show_unsupported_dialog()
-        self.linenumbers.grid_remove()
-        self.scrollbar.grid_remove()
+        self.linenumbers.pack_forget()
+        self.scrollbar.pack_forget()
         self.editable = False
 
     def focus(self):

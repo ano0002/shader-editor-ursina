@@ -6,12 +6,12 @@ from .frame import Frame
 
 
 class Tree(Frame):
+    instance=0
     def __init__(self, master, path=None, doubleclick=lambda _: None, singleclick=lambda _: None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
+        self.instance += Tree.instance
         self.config(bg=self.base.theme.tree["background"])
 
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
 
         self.path = path
         self.doubleclick = doubleclick
@@ -19,16 +19,17 @@ class Tree(Frame):
 
         self.tree = ttk.Treeview(self, show="tree", columns=("fullpath", "type"), 
                                  displaycolumns='', selectmode=tk.BROWSE)
-        self.tree.grid(row=0, column=0, sticky=tk.NSEW)
+        self.tree.pack(side=tk.TOP, fill=tk.X)
         
-        self.scrollbar = Scrollbar(self, orient=tk.VERTICAL, command=self.tree.yview, style="TreeScrollbar")
-        self.scrollbar.grid(row=0, column=1, sticky=tk.NS)
+        self.scrollbar = Scrollbar(self, orient=tk.VERTICAL, command=self.tree.yview, style=f"TreeScrollbar{self.instance}")
+        self.scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
 
         self.tree.config(yscrollcommand=self.scrollbar.set)
         self.scrollbar.config(command=self.tree.yview)
         
         self.tree.bind("<Double-Button-1>", self.doubleclick)
         self.tree.bind("<<TreeviewSelect>>", self.check_singleclick)
+        Tree.instance += 1
 
     def check_singleclick(self, _):
         if self.item_type(self.focus()) == 'file':

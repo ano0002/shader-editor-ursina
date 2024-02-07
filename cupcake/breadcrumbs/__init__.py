@@ -15,7 +15,7 @@ class BreadCrumbs(Frame):
     def __init__(self, master, path=None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         self.config(padx=20, bg=self.base.theme.breadcrumbs["background"])
-
+        self.config(width=master.winfo_width()-40)
         self.pathview = PathView(self)
         path = os.path.abspath(path).split('\\')
         for i, item in enumerate(path):

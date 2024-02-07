@@ -82,7 +82,6 @@ class Editor(Frame):
                  *args, **kwargs) -> None:
         super().__init__(master, *args, **kwargs)
 
-        self.path = path
         self.path2 = path2
         self.diff = diff
         self.showpath = showpath
@@ -95,21 +94,45 @@ class Editor(Frame):
         self.theme = self.settings.theme
 
         self.config(bg=self.theme.border)
-        self.grid_columnconfigure(0, weight=1)
 
         self.content = get_editor(self, path, path2, diff, language, autocomplete)
-        self.filename = os.path.basename(self.path) if path else None
-        if path and self.showpath and not diff:
-            self.breadcrumbs = BreadCrumbs(self, path)
-            self.grid_rowconfigure(1, weight=1)  
-            self.breadcrumbs.grid(row=0, column=0, sticky=tk.EW, pady=(0, 1))
-            self.content.grid(row=1, column=0, sticky=tk.NSEW)
-        else:
-            self.grid_rowconfigure(0, weight=1)
-            self.content.grid(row=0, column=0, sticky=tk.NSEW)
+        self.content.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.path = path
+        self.pack_propagate(False)
     
     def save(self, path: str=None) -> None:
         self.content.save(path)
     
     def focus(self) -> None:
         self.content.focus()
+
+    def configure(self, **kwargs) -> None:
+        if "path" in kwargs:
+            self.path = kwargs.pop("path")
+        super().configure(**kwargs)
+    
+    @property
+    def path(self) -> str:
+        return self._path
+
+    @path.setter
+    def path(self, value: str) -> None:
+        self._path = value
+        if hasattr(self,"content"):
+            self.content.path = value
+            self.content.update()
+        if value:
+            self.filename = os.path.basename(value) if value else None
+            if self.showpath and not self.diff:
+                if hasattr(self, "breadcrumbs"):
+                    self.breadcrumbs.path = value
+                    self.breadcrumbs.update()
+                else:
+                    self.breadcrumbs = BreadCrumbs(self, value)
+                    self.breadcrumbs.pack(side=tk.TOP, fill=tk.X)
+                self.content.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+        else:
+            if hasattr(self, "breadcrumbs"):
+                self.breadcrumbs.pack_forget()
+            self.filename = None
+            self.content.pack(side=tk.TOP, fill=tk.BOTH, expand=True)

@@ -3,46 +3,12 @@ from ursina import *
 from cupcake import Editor, Languages
 import tkinter as tk
 from ursina.shader import default_fragment_shader, default_vertex_shader
-from autocompletion_words import control_keywords,basic_types,modifiers,functions
+from autocompletion_words import control_keywords,basic_types,modifiers,functions,uniform_names
 import os
 import builtins
 from uniform_modifier import *
 from panda3d.core import MultiplexStream, Notify, Filename
 
-uniform_names = [
-    "p3d_ModelViewProjectionMatrix",
-    "p3d_ModelViewMatrix",
-    "p3d_ProjectionMatrix",
-    "p3d_ModelMatrix",
-    "p3d_ViewMatrix",
-    "p3d_ViewProjectionMatrix",
-    "p3d_NormalMatrix",
-    "p3d_ProjectionMatrixInverse",
-    "p3d_ProjectionMatrixTranspose",
-    "p3d_ModelViewMatrixInverseTranspose",
-    "p3d_Texture0",
-    "p3d_Texture1",
-    "p3d_Texture2",
-    "p3d_Texture3",
-    "p3d_TextureModulate",
-    "p3d_TextureAdd",
-    "p3d_TextureNormal",
-    "p3d_TextureHeight",
-    "p3d_TextureGloss",
-    "p3d_TextureMatrix",
-    "p3d_ColorScale",
-    "p3d_Material",
-    "p3d_LightModel",
-    "p3d_ClipPlane",
-    "osg_FrameTime",
-    "osg_DeltaFrameTime",
-    "osg_FrameNumber",
-    "p3d_TransformTable",
-    "p3d_LightSource",
-    "p3d_Fog",
-    "tex",
-    "dtex"
-]
 
 uniform_associations = {
     "float":UniformFloat,
@@ -104,16 +70,19 @@ for word in functions:
     if word not in autocomplete.get_items_text():
         autocomplete.add_item(word, "method")
 
+for word in uniform_names:
+    if word not in autocomplete.get_items_text():
+        autocomplete.add_item(word, "variable")
 
-vertexCode.pack(fill=tk.BOTH, expand=True)
-fragmentCode.pack(fill=tk.BOTH, expand=True)
-geometryCode.pack(fill=tk.BOTH, expand=True)
+vertexCode.pack(fill=tk.BOTH, side=tk.TOP,expand=True)
+fragmentCode.pack(fill=tk.BOTH, side=tk.TOP,expand=True)
+geometryCode.pack(fill=tk.BOTH, side=tk.TOP,expand=True)
 
 vertexCode.focus_force()
 
 
 uniform_list = tk.Frame(tabview.tab("Uniforms"),bg="#212121")
-uniform_list.pack(fill=tk.BOTH, expand=True, side=tk.TOP, padx=20, pady=20)
+uniform_list.pack(fill=tk.BOTH, side=tk.TOP, padx=20, pady=20)
 
 def extract_uniforms(code):
     uniforms = []
@@ -152,10 +121,10 @@ def get_uniforms():
                 uniform_setter = uniform_associations[uniform[0]](**kwargs)
             else:
                 uniform_setter = Uniform(**kwargs)
-            uniform_setter.pack(fill=tk.X, expand=True, side=tk.TOP)
+            uniform_setter.pack(fill=tk.X, side=tk.TOP)
 
 extractor_button = customtkinter.CTkButton(tabview.tab("Uniforms"),text="Extract",command=get_uniforms,text_color="green",fg_color="#22272b",border_width=2,border_color="#22272b",hover_color="#343d46",corner_radius=0,border_spacing=0,width=40,font=("Arial", 20),height=40)
-extractor_button.pack(fill=tk.X, expand=True, side=tk.BOTTOM)
+extractor_button.pack(fill=tk.X, side=tk.BOTTOM)
 
         
 def setActiveTab(tab):
@@ -188,6 +157,11 @@ def resetFragment():
     
 def resetGeometry():
     geometryCode.content.delete(1.0, tk.END)
+
+def resetPaths():
+    vertexCode.path = None
+    fragmentCode.path = None
+    geometryCode.path = None
 
 def clearConsole():
     global console_content
@@ -249,15 +223,13 @@ builtins.print = console_print
 def configure(event):
     if event.widget != tkWindow:
         return
-    height = round(tkWindow.winfo_height()/3*2+.5)
-    width = round(tkWindow.winfo_width()/3+.5)
+    height = round(tkWindow.winfo_height()/3*2)
+    width = round(tkWindow.winfo_width()/3)
     window.size = (width*2, height)
-    tabview.rowconfigure(0, weight=1)
-    tabview.columnconfigure(0, weight=1)
     tabview.configure(width=width, height=height)
     tabview.place(x=width*2, y=0, anchor="nw")
-    compile_and_run.place(x=tkWindow.winfo_width()-compile_and_run.winfo_reqwidth(),y=0,anchor="nw")
-    console.place(x=10,y=height+10,anchor="nw",width=width*3-20,height=height/2-20)
+    compile_and_run.place(x=width*3-40, y=0, anchor="nw")
+    console.place(x=10,y=height,anchor="nw",width=width*3-20,height=height/2-20)
 
 tkWindow.bind("<Configure>", configure)
 
@@ -266,6 +238,7 @@ def new_project():
     resetVertex()
     resetFragment()
     resetGeometry()
+    resetPaths()
     get_uniforms()
 
 def open_vertex():
@@ -275,6 +248,7 @@ def open_vertex():
         with open(file, 'r') as f:
             vertexCode.content.delete(1.0, tk.END)
             vertexCode.content.insert(tk.END, f.read())
+        vertexCode.path = file
         tabview.set("Vertex")
         vertexCode.focus_force()
     get_uniforms()
@@ -286,6 +260,7 @@ def open_fragment():
         with open(file, 'r') as f:
             fragmentCode.content.delete(1.0, tk.END)
             fragmentCode.content.insert(tk.END, f.read())
+        fragmentCode.path = file
         tabview.set("Fragment")
         fragmentCode.focus_force()
     get_uniforms()
@@ -297,6 +272,7 @@ def open_geometry():
         with open(file, 'r') as f:
             geometryCode.content.delete(1.0, tk.END)
             geometryCode.content.insert(tk.END, f.read())
+        geometryCode.path = file
         tabview.set("Geometry")
         geometryCode.focus_force()
     get_uniforms()
@@ -320,7 +296,7 @@ def open_project():
                     geometryCode.content.delete(1.0, tk.END)
                     geometryCode.content.insert(tk.END, f.read())
     get_uniforms()
-            
+       
 def save_project():
     directory = tk.filedialog.askdirectory(initialdir = "./",title = "Select directory")
     if directory:
@@ -379,6 +355,7 @@ filemenu.add_cascade(label="Reset",menu=resetmenu)
 filemenu.add_separator()
 filemenu.add_command(label="Exit", command=tkWindow.quit)
 menubar.add_cascade(label="File", menu=filemenu)
+
 
 tkWindow.config(menu=menubar)
 
@@ -492,6 +469,7 @@ for key,func in binds.items():
     tkWindow.bind(key, func)
 
 tkWindow.bind("<Control-Key>", lambda event: None)
+
 def update():
     if not "<Control-Key>" in tkWindow.bind():
         tkWindow.bind("<Control-Key>", lambda event: None)

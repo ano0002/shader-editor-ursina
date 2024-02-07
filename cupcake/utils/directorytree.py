@@ -17,7 +17,7 @@ class DirectoryTree(Frame):
         self.ignore_exts = [".pyc"]
 
         self.tree = Tree(self, path, doubleclick=self.openfile, singleclick=self.preview_file, *args, **kwargs)
-        self.tree.grid(row=0, column=0, sticky=tk.NSEW)
+        self.tree.pack(fill=tk.BOTH, expand=True)
 
         self.path = path
         if path:
