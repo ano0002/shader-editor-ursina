@@ -1,8 +1,38 @@
-# Ursina Engine Shader Editor [WIP]
+# Ursina Engine Shader Editor 
+[![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/w/ano0002/shader-editor-ursina/main)](https://github.com/ano0002/shader-editor-ursina/pulse) [![MIT License](https://img.shields.io/github/license/ano0002/shader-editor-ursina)](https://github.com/ano0002/shader-editor-ursina/blob/main/LICENSE) [![GitHub Repo stars](https://img.shields.io/github/stars/ano0002/shader-editor-ursina?style=flat)
+](https://github.com/ano0002/shader-editor-ursina/stargazers) 
+
+
+
+## Table of Contents
+
+- [Ursina Engine Shader Editor](#ursina-engine-shader-editor)
+  - [Table of Contents](#table-of-contents)
+  - [What is this?](#what-is-this)
+    - [Features](#features)
+  - [How do I use it?](#how-do-i-use-it)
+    - [Installation](#installation)
+    - [Usage](#usage)
+    - [Common Issues](#common-issues)
+    - [Samples](#samples)
+  - [Dependencies](#dependencies)
+  - [Sources](#sources)
+  - [License](#license)
+  - [Suport me ;)](#suport-me-)
+  - [Star History](#star-history)
+
 
 ## What is this?
 
 This is a shader editor for the [Ursina Engine](https://www.ursinaengine.org/). It is still in development and is not ready for use yet but feel free to try it and to modify it as you want.
+
+### Features
+
+- Syntax highlighting
+- Autocompletion
+- Uniforms extraction
+- Shader preview
+- Shader hot-reloading
 
 ## How do I use it?
 
@@ -28,7 +58,7 @@ To test if everything is working for you just open the app and click `File>Open>
 
 Any feedback is appreciated.
 
-### Dependencies
+## Dependencies
 
 - [customtkinter](https://customtkinter.tomschimansky.com)
 - [Tkinter](https://docs.python.org/3/library/tkinter.html)
@@ -42,11 +72,19 @@ Any feedback is appreciated.
   - [filetype](https://pypi.org/project/filetype/)
   - [pygments](https://pygments.org/)
 
-### Sources
+## Sources
 All the words for autocompletion come from :
 https://github.com/euler0/sublime-glsl/blob/master/GLSL.sublime-syntax
 And
 https://registry.khronos.org/OpenGL-Refpages/
 
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
 ## Suport me ;)
 <a href="https://www.buymeacoffee.com/anatolesot" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me A Coffee" style="height: 50px !important;width: 200px !important;" ></a>
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=ano0002/shader-editor-ursina&type=Date)](https://star-history.com/#ano0002/shader-editor-ursina&Date)](https://github.com/ano0002/shader-editor-ursina/stargazers)
+
