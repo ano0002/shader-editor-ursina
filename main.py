@@ -87,6 +87,14 @@ vertexCode.focus_force()
 uniform_list = tk.Frame(tabview.tab("Uniforms"),bg="#212121")
 uniform_list.pack(fill=tk.BOTH, side=tk.TOP, padx=20, pady=20)
 
+def sanitize(params):
+    params = params.split(",")
+    params = [float(x) if x.replace(".","").isdigit() else x for x in params]
+    params = [int(x) if isinstance(x,float) and x.is_integer() else x for x in params]
+    params = [True if x=="true" else False if x=="false" else x for x in params]
+    params = tuple(params) if len(params) > 1 else params[0]
+    return params
+
 def extract_uniforms(code):
     uniforms = []
     for line in code.split("\n"):
@@ -94,11 +102,7 @@ def extract_uniforms(code):
             line,params = line[7:].split(";")
             if len(params) > 5:
                 try :
-                    params = params[2:].strip("(").strip(")").split(",")
-                    params = [float(x) if x.replace(".","").isdigit() else x for x in params]
-                    params = [int(x) if isinstance(x,float) and x.is_integer() else x for x in params]
-                    params = [True if x=="true" else False if x=="false" else x for x in params]
-                    params = tuple(params)
+                    params = sanitize(params[2:].strip("()"))
                 except:
                     params = []
             else:
@@ -126,6 +130,10 @@ def get_uniforms():
         if uniform[1] not in uniform_names:
             kwargs = {"master":uniform_list,"name":uniform[1],"type":uniform[0],"camera":camera}
             if len(uniform) > 2 :
+                print(uniform[2])
+                uniform[2] = uniform[2].replace("vec2","").replace("vec3","").replace("vec4","").strip("()")
+                print(out=uniform[2])
+                uniform[2] = sanitize(uniform[2])
                 kwargs["default_value"] = uniform[2]
             if params != []:
                 kwargs["params"] = params

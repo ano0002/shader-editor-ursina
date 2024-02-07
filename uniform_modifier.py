@@ -39,9 +39,10 @@ class UniformInt(Uniform):
     def create_entry(self):
         self.uniform_entry = customtkinter.CTkSlider(self, from_=0, to=100, command=self.update_shader)
         if self._params:
+            print(params=(self._params[0],self._params[1]))
             self.uniform_entry.configure(from_=self._params[0], to=self._params[1])
         if self._default_value:
-            self._default_value = int(self._default_value)
+            print(default_value=self._default_value)
             self.uniform_entry.set(self._default_value)
         self.uniform_entry.pack(side="right")
 
@@ -154,11 +155,18 @@ class UniformVec2(Uniform):
         self.entry2 = customtkinter.CTkEntry(self)
         if self._default_value:
             self._default_value = Vec2(self._default_value)
-            self.entry1.set(self._default_value[0])
-            self.entry2.set(self._default_value[1])
+            self.entry1.insert(tk.END,self._default_value[0])
+            self.entry2.insert(tk.END,self._default_value[1])
+        else:
+            self.entry1.insert(tk.END,"0")
+            self.entry2.insert(tk.END,"0")
         self.entry1.pack(side="right")
         self.entry2.pack(side="right")
-        
+        self.entry1.bind("<Return>", self.update_shader)
+        self.entry1.bind("<FocusOut>", self.update_shader)
+        self.entry2.bind("<Return>", self.update_shader)
+        self.entry2.bind("<FocusOut>", self.update_shader)
+        self.update_shader()
         
     def get(self):
         if self.entry1.get() and self.entry2.get():
