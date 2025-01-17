@@ -81,9 +81,6 @@ https://registry.khronos.org/OpenGL-Refpages/
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
-## Suport me ;)
-<a href="https://www.buymeacoffee.com/anatolesot" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me A Coffee" style="height: 50px !important;width: 200px !important;" ></a>
-
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=ano0002/shader-editor-ursina&type=Date)](https://github.com/ano0002/shader-editor-ursina/stargazers)
